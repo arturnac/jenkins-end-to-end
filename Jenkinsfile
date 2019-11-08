@@ -27,7 +27,7 @@ pipeline {
         stage('moving artifacts into the right folder') {
             steps {
                 script {
-                    sh """ssh training@192.168.56.103 <<< EOF
+                    sh """ssh training@192.168.56.103 << EOF
                     cp /home/training/build/* /var/www/html
                     rm -rf /home/training/build
                     rm -rf /home/training/build.zip
