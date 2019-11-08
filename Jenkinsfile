@@ -6,7 +6,7 @@ pipeline {
             steps {
                 sh '''mkdir -p build
                 cp my_page.html build/my_page.html
-                echo ${BUILD_NUMBER} > relese.txt
+                echo ${BUILD_NUMBER} > release.txt
                 cp release.txt build/release.txt'''
             }
         }
