@@ -15,15 +15,6 @@ pipeline {
                 sh 'zip -r build.zip build'
             }
         }
-        stage('docker build/push') {     
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-                        def app = docker.build("arturnac/docker-nodejs-demo:${BUILD_NUMBER}", '.').push()
-                    }   
-                }
-            }                 
-        }
         stage('archive artifacts') {
             steps {
                 archiveArtifacts 'build.zip'  
@@ -34,7 +25,7 @@ pipeline {
                 sshPublisher(publishers: [sshPublisherDesc(configName: 'Webserver', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'exec command', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '**/*.html')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
         }        
-        stage('archive artifacts') {
+        stage('moving artifacts into the right folder') {
             steps {
                 script {
                     sh """ssh training@192.168.56.103 <<< EOF
