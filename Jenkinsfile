@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     sh """ssh training@192.168.56.103 <<< EOF
-                    cp /home/training/build/* /var/www/my_page
+                    cp /home/training/build/* /var/www/htmlß
                     rm -rf /home/training/build
                     rm -rf /home/training/build.zip
                     exit
