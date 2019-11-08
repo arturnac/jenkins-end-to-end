@@ -1,6 +1,6 @@
 pipeline {
     agent any
-
+    
     stages {
         stage('build') {
             steps {
@@ -15,6 +15,15 @@ pipeline {
                 sh 'zip -r build.zip build'
             }
         }
+        stage('docker build/push') {     
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
+                        def app = docker.build("arturnac/docker-nodejs-demo:${BUILD_NUMBER}", '.').push()
+                    }   
+                }
+            }                 
+        }
         stage('archive artifacts') {
             steps {
                 archiveArtifacts 'build.zip'  
@@ -22,26 +31,20 @@ pipeline {
         }
         stage('copying artifacts to remotes') {
             steps {
-                shPublisher(publishers: [sshPublisherDesc(configName: 'academy', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'exec command', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '**/*.html')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])        }
-        stage('archive artifacts'){
+
+            }
+        }        
+        stage('archive artifacts') {
             steps {
                 script {
-                    sh """ssh academy@10.0.2.4 <<< EOF
-                    cp /home/academy/build/* /var/www/my_page
-                    rm -rf /home/academy/build
-                    rm -rf /home/academy/build.zip
+                    sh """ssh training@192.168.56.103 <<< EOF
+                    cp /home/training/build/* /var/www/my_page
+                    rm -rf /home/training/build
+                    rm -rf /home/training/build.zip
                     exit
                     EOF"""
                 }
             }
-        }
-    }
-
-    post {
-        failure {
-            mail to: 'artur.na@hotmail.com',
-            subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-            body: "Something is wrong with ${env.BUILD_URL}"
-        }
+        }       
     }
 }
